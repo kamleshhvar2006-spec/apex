@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>APEX Logistics – Global &amp; Domestic Supply Chain</title>
+<meta name="description" content="APEX Logistics moves freight by road, ocean and air. Track shipments, estimate freight in rupees, book online and manage operations.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0a0a0b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23e11d2e'/%3E%3Cpath d='M6 26 16 6l10 20h-5.5L16 16.5 11.5 26z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script>
+tailwind.config = {
+  theme: { extend: {
+    colors: {
+      ink: { 950: '#0a0a0b', 900: '#111113', 800: '#18181b', 700: '#232327', 600: '#34343a' },
+      apex: { DEFAULT: '#e11d2e', 600: '#c81727', 400: '#ff4757' }
+    },
+    fontFamily: {
+      display: ['"Barlow Condensed"', 'Impact', 'Arial Narrow', 'sans-serif'],
+      sans: ['"IBM Plex Sans"', 'system-ui', 'sans-serif']
+    }
+  } }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.263.1/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root { box-sizing: border-box; color-scheme: dark; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  html { scroll-behavior: smooth; scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 88px); }
+  body { background: #0a0a0b; color: #e4e4e7; font-family: "IBM Plex Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  h1, h2, h3, .font-display { font-family: "Barlow Condensed", Impact, "Arial Narrow", sans-serif; letter-spacing: .005em; }
+  section[id] { scroll-margin-top: 88px; }
+  .panel { background: linear-gradient(180deg, #151517, #0f0f11); border: 1px solid rgba(255,255,255,.07); border-radius: .75rem; }
+  .field { width: 100%; min-height: 46px; background: #0c0c0e; border: 1px solid #2e2e34; border-radius: .5rem; padding: .65rem .85rem; color: #f4f4f5; transition: border-color .15s; }
+  .field::placeholder { color: #71717a; }
+  .field:hover { border-color: #4a4a52; }
+  .field:focus { outline: 2px solid #e11d2e; outline-offset: 1px; border-color: #e11d2e; }
+  .field[aria-invalid="true"] { border-color: #f87171; }
+  .field[readonly] { color: #fca5a5; font-weight: 600; background: #120c0d; }
+  select.field { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23a1a1aa' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right .75rem center; padding-right: 2.25rem; }
+  label.lbl { display: block; font-size: .875rem; font-weight: 500; color: #d4d4d8; margin-bottom: .35rem; }
+  .err { min-height: 1.25rem; font-size: .8125rem; color: #fca5a5; margin-top: .25rem; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 46px; padding: .65rem 1.25rem; border-radius: .5rem; font-weight: 600; cursor: pointer; transition: background .15s, border-color .15s, box-shadow .15s, transform .15s; }
+  .btn-primary { background: #e11d2e; color: #fff; }
+  .btn-primary:hover { background: #c81727; box-shadow: 0 10px 28px -10px rgba(225,29,46,.7); transform: translateY(-1px); }
+  .btn-ghost { border: 1px solid #3a3a41; color: #e4e4e7; }
+  .btn-ghost:hover { border-color: #e11d2e; background: rgba(225,29,46,.08); }
+  .btn[disabled] { opacity: .6; cursor: not-allowed; transform: none; box-shadow: none; }
+  :focus-visible { outline: 2px solid #ff4757; outline-offset: 2px; }
+  .spinner { width: 1rem; height: 1rem; border-radius: 9999px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .skeleton { background: linear-gradient(90deg, #17171a 25%, #26262b 50%, #17171a 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite; border-radius: .4rem; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  .badge { display: inline-flex; align-items: center; gap: .3rem; padding: .15rem .6rem; border-radius: 9999px; font-size: .75rem; font-weight: 600; white-space: nowrap; border: 1px solid transparent; }
+  .b-Pending { background: #2a2410; color: #fcd34d; border-color: #5c4a14; }
+  .b-Confirmed { background: #10222e; color: #7dd3fc; border-color: #1b4560; }
+  .b-In-Transit, .b-At-Hub { background: #1f1226; color: #d8b4fe; border-color: #4a2a5c; }
+  .b-Out-for-Delivery { background: #0f2a2a; color: #5eead4; border-color: #17504f; }
+  .b-Delivered { background: #0f2616; color: #86efac; border-color: #1b5430; }
+  .b-Delayed { background: #2e1a0e; color: #fdba74; border-color: #6b3a14; }
+  .b-Cancelled { background: #1c1c1f; color: #a1a1aa; border-color: #3a3a41; }
+  .mode-opt input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+  .mode-opt label { display: flex; flex-direction: column; align-items: center; gap: .35rem; padding: .85rem .5rem; border: 1px solid #2e2e34; border-radius: .5rem; background: #0c0c0e; font-weight: 500; cursor: pointer; transition: border-color .15s, background .15s; }
+  .mode-opt input:hover + label { border-color: #4a4a52; }
+  .mode-opt input:checked + label { border-color: #e11d2e; background: rgba(225,29,46,.1); color: #fff; }
+  .mode-opt input:focus-visible + label { outline: 2px solid #ff4757; outline-offset: 2px; }
+  dialog { background: #111113; color: #e4e4e7; border: 1px solid #34343a; border-radius: .75rem; padding: 0; width: min(30rem, calc(100vw - 2rem)); }
+  dialog::backdrop { background: rgba(0,0,0,.75); }
+  .lane { stroke-dasharray: 5 6; animation: dash 14s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -220; } }
+  .float-slow { animation: floaty 7s ease-in-out infinite; }
+  @keyframes floaty { 50% { transform: translateY(-8px); } }
+  .grid-dots { background-image: radial-gradient(rgba(255,255,255,.07) 1px, transparent 1px); background-size: 22px 22px; }
+  .sr-only-focusable:not(:focus) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<svg width="0" height="0" class="absolute" aria-hidden="true" focusable="false">
+  <symbol id="logo-mark" viewBox="0 0 32 32">
+    <rect width="32" height="32" rx="7" fill="#e11d2e"/>
+    <path d="M6 26 16 6l10 20h-5.5L16 16.5 11.5 26z" fill="#fff"/>
+  </symbol>
+</svg>
+
+<a href="#main" class="sr-only-focusable fixed left-3 top-3 z-[120] rounded bg-white px-3 py-2 text-black">Skip to main content</a>
+
+<!-- Loading indicator -->
+<div id="pageLoader" class="fixed inset-0 z-[110] flex flex-col items-center justify-center gap-5 bg-ink-950 transition-opacity duration-500" role="status" aria-live="polite">
+  <svg class="h-14 w-14" aria-hidden="true"><use href="#logo-mark"/></svg>
+  <div class="h-1 w-48 overflow-hidden rounded bg-ink-700"><div class="skeleton h-full w-full" style="background:linear-gradient(90deg,#e11d2e,#ff4757,#e11d2e);background-size:200% 100%"></div></div>
+  <p class="text-sm text-zinc-400">Loading APEX Logistics</p>
+</div>
+
+<!-- System notice -->
+<div id="systemNotice" class="relative z-40 border-b border-apex/30 bg-[#1a0d0f]" role="region" aria-label="System notice">
+  <div class="mx-auto flex max-w-7xl items-start gap-3 px-4 py-2.5 text-sm sm:px-6">
+    <i data-lucide="triangle-alert" class="mt-0.5 h-4 w-4 shrink-0 text-apex-400" aria-hidden="true"></i>
+    <p class="flex-1 text-zinc-200"><strong class="font-semibold text-white">Network advisory:</strong> heavy monsoon rain may add 1–2 days to East-coast road lanes. Check live status with your tracking ID. <span id="demoNotice" class="hidden text-amber-300">Demo mode: sample data, no AWS backend connected.</span></p>
+    <button id="noticeClose" class="rounded p-1 text-zinc-400 hover:bg-white/10 hover:text-white" aria-label="Dismiss system notice"><i data-lucide="x" class="h-4 w-4" aria-hidden="true"></i></button>
+  </div>
+</div>
+
+<!-- Navigation -->
+<header class="sticky z-50 border-b border-white/10 bg-ink-950/90 backdrop-blur" style="top:env(safe-area-inset-top,0px)">
+  <nav class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6" aria-label="Primary">
+    <a href="#top" class="flex items-center gap-2.5" aria-label="APEX Logistics home">
+      <svg class="h-9 w-9" aria-hidden="true"><use href="#logo-mark"/></svg>
+      <span class="leading-none"><span class="font-display text-2xl font-extrabold text-white">APEX</span><span class="ml-1.5 font-display text-lg font-semibold text-zinc-400">Logistics</span></span>
+    </a>
+    <ul id="navLinks" class="hidden items-center gap-1 lg:flex">
+      <li><a class="nav-link rounded px-3 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white" href="#about">About</a></li>
+      <li><a class="nav-link rounded px-3 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white" href="#network">Network</a></li>
+      <li><a class="nav-link rounded px-3 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white" href="#services">Services</a></li>
+      <li><a class="nav-link rounded px-3 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white" href="#tracking">Track</a></li>
+      <li><a class="nav-link rounded px-3 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white" href="#estimator">Rates</a></li>
+      <li><a class="nav-link rounded px-3 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white" href="#booking">Book</a></li>
+      <li><a class="nav-link rounded px-3 py-2 text-sm text-zinc-300 hover:bg-white/5 hover:text-white" href="#admin">Admin</a></li>
+    </ul>
+    <div class="flex items-center gap-2">
+      <a href="#booking" class="btn btn-primary hidden !min-h-[40px] !py-2 text-sm sm:inline-flex">Book a shipment</a>
+      <button id="menuBtn" class="btn btn-ghost !min-h-[44px] !px-3 lg:hidden" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu"><i data-lucide="menu" class="h-5 w-5" aria-hidden="true"></i></button>
+    </div>
+  </nav>
+  <div id="mobileMenu" class="hidden border-t border-white/10 bg-ink-950 lg:hidden">
+    <ul class="mx-auto grid max-w-7xl grid-cols-2 gap-1 px-4 py-3 sm:px-6">
+      <li><a class="block rounded px-3 py-3 text-zinc-200 hover:bg-white/5" href="#about">About</a></li>
+      <li><a class="block rounded px-3 py-3 text-zinc-200 hover:bg-white/5" href="#network">Network</a></li>
+      <li><a class="block rounded px-3 py-3 text-zinc-200 hover:bg-white/5" href="#services">Services</a></li>
+      <li><a class="block rounded px-3 py-3 text-zinc-200 hover:bg-white/5" href="#tracking">Track shipment</a></li>
+      <li><a class="block rounded px-3 py-3 text-zinc-200 hover:bg-white/5" href="#estimator">Rate estimator</a></li>
+      <li><a class="block rounded px-3 py-3 text-zinc-200 hover:bg-white/5" href="#booking">Book</a></li>
+      <li class="col-span-2"><a class="block rounded px-3 py-3 text-zinc-200 hover:bg-white/5" href="#admin">Admin access</a></li>
+    </ul>
+  </div>
+</header>
+
+<main id="main">
+<!-- Hero -->
+<section id="top" class="relative overflow-hidden border-b border-white/5">
+  <div class="grid-dots pointer-events-none absolute inset-0 opacity-60" aria-hidden="true"></div>
+  <div class="relative mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:py-20">
+    <div>
+      <h1 class="text-5xl font-extrabold leading-[.95] text-white sm:text-6xl lg:text-7xl">Freight that arrives when you said it would.</h1>
+      <p class="mt-5 max-w-xl text-lg text-zinc-300">APEX Logistics runs road, ocean and air freight across India and 18 global gateways, with one tracking ID from pickup to delivery.</p>
+      <form id="heroTrack" class="mt-8 flex max-w-xl flex-col gap-3 sm:flex-row" novalidate>
+        <div class="flex-1">
+          <label for="heroTrackId" class="sr-only">Tracking ID</label>
+          <input id="heroTrackId" class="field" placeholder="Enter tracking ID, e.g. APX-20261012-AB12CD34" autocomplete="off" spellcheck="false">
+        </div>
+        <button class="btn btn-primary" type="submit"><i data-lucide="search" class="h-4 w-4" aria-hidden="true"></i>Track shipment</button>
+      </form>
+      <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-zinc-400">
+        <a href="#estimator" class="underline decoration-zinc-600 underline-offset-4 hover:text-white">Get a freight estimate</a>
+        <a href="#booking" class="underline decoration-zinc-600 underline-offset-4 hover:text-white">Book a pickup</a>
+      </div>
+      <dl class="mt-10 grid max-w-xl grid-cols-3 gap-4 border-t border-white/10 pt-6">
+        <div><dt class="text-sm text-zinc-400">Gateways</dt><dd class="font-display text-4xl font-bold text-white">19</dd></div>
+        <div><dt class="text-sm text-zinc-400">Modes</dt><dd class="font-display text-4xl font-bold text-white">3</dd></div>
+        <div><dt class="text-sm text-zinc-400">Status checks</dt><dd class="font-display text-4xl font-bold text-white">24/7</dd></div>
+      </dl>
+    </div>
+    <div class="relative">
+      <svg viewBox="0 0 640 440" class="w-full h-auto drop-shadow-2xl" role="img" aria-label="Illustration of a container port at dusk with a cargo ship, a gantry crane, a truck and a cargo aircraft">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d0b0f"/><stop offset="1" stop-color="#0f0f12"/></linearGradient>
+          <radialGradient id="sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff4757" stop-opacity=".85"/><stop offset="1" stop-color="#e11d2e" stop-opacity="0"/></radialGradient>
+          <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1a1a1f"/><stop offset="1" stop-color="#0b0b0d"/></linearGradient>
+        </defs>
+        <rect width="640" height="440" rx="18" fill="url(#sky)"/>
+        <circle cx="440" cy="170" r="150" fill="url(#sun)"/>
+        <circle cx="440" cy="170" r="48" fill="#e11d2e" opacity=".9"/>
+        <g class="float-slow">
+          <path d="M70 118 200 96" stroke="#ffffff" stroke-opacity=".12" stroke-width="3" stroke-dasharray="3 8" stroke-linecap="round"/>
+          <g transform="translate(210 86) rotate(-8)">
+            <path d="M0 22q8-16 62-14l62 6q22 4 0 14l-62 6q-54 2-62-12z" fill="#e5e7eb"/>
+            <path d="M62 14 40-14h18l34 28z" fill="#9ca3af"/><path d="M62 30 42 58h18l34-28z" fill="#9ca3af"/>
+            <path d="M6 18-8 0h14l14 14z" fill="#e11d2e"/>
+          </g>
+        </g>
+        <rect y="300" width="640" height="140" fill="url(#sea)"/>
+        <path d="M0 322q40-8 80 0t80 0 80 0 80 0 80 0 80 0 80 0" fill="none" stroke="#ffffff" stroke-opacity=".08" stroke-width="2"/>
+        <path d="M0 346q40-8 80 0t80 0 80 0 80 0 80 0 80 0 80 0" fill="none" stroke="#ffffff" stroke-opacity=".05" stroke-width="2"/>
+        <g id="shipContainers"></g>
+        <path d="M48 296h470l-34 54H92z" fill="#2b2b31"/>
+        <path d="M54 306h458l-4 8H58z" fill="#e11d2e"/>
+        <rect x="64" y="250" width="54" height="46" fill="#d4d4d8"/><rect x="72" y="238" width="38" height="14" fill="#a1a1aa"/>
+        <rect x="70" y="260" width="40" height="5" fill="#27272a"/><rect x="70" y="272" width="40" height="5" fill="#27272a"/>
+        <rect x="518" y="326" width="122" height="114" fill="#18181b"/>
+        <g stroke="#e11d2e" stroke-width="6" stroke-linecap="square" fill="none">
+          <path d="M556 326V196M610 326V196"/><path d="M470 196h170"/><path d="M556 196 600 150 610 196"/>
+        </g>
+        <path d="M470 196v38" stroke="#a1a1aa" stroke-width="2"/><rect x="458" y="234" width="24" height="12" fill="#e11d2e"/>
+        <g transform="translate(528 392)">
+          <rect x="0" y="0" width="64" height="26" rx="2" fill="#e5e7eb"/><rect x="2" y="3" width="60" height="20" fill="#e11d2e" opacity=".9"/>
+          <path d="M66 6h16l8 10v10H66z" fill="#d4d4d8"/><rect x="72" y="9" width="10" height="7" fill="#27272a"/>
+          <circle cx="14" cy="28" r="7" fill="#111"/><circle cx="52" cy="28" r="7" fill="#111"/><circle cx="80" cy="28" r="7" fill="#111"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <svg id="skyline" class="block h-16 w-full text-ink-900" viewBox="0 0 1200 64" preserveAspectRatio="none" aria-hidden="true"></svg>
+</section>
+
+<!-- Logistics introduction -->
+<section id="about" class="bg-ink-900 py-16 sm:py-20">
+  <div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-5">
+    <div class="lg:col-span-2">
+      <h2 class="text-4xl font-bold text-white sm:text-5xl">One carrier for the whole supply chain</h2>
+      <p class="mt-4 text-zinc-300">Most shipments cross several hands between pickup and delivery. We own the booking, the routing and the status updates, so you deal with one team and one reference number.</p>
+      <p class="mt-4 text-zinc-400">From a single pallet to Odisha to full container loads out of Paradeep, we plan the cheapest mode that still meets your delivery date.</p>
+    </div>
+    <ul class="grid gap-4 sm:grid-cols-2 lg:col-span-3">
+      <li class="panel p-5"><i data-lucide="radar" class="h-6 w-6 text-apex-400" aria-hidden="true"></i><h3 class="mt-3 text-2xl font-bold text-white">Live shipment status</h3><p class="mt-1 text-sm text-zinc-400">Every handoff updates the shipment record. Customers see current location and delivery date without calling us.</p></li>
+      <li class="panel p-5"><i data-lucide="file-check-2" class="h-6 w-6 text-apex-400" aria-hidden="true"></i><h3 class="mt-3 text-2xl font-bold text-white">Customs-ready paperwork</h3><p class="mt-1 text-sm text-zinc-400">Export and import documents are prepared with the booking, so cargo is not held at the port for missing forms.</p></li>
+      <li class="panel p-5"><i data-lucide="door-open" class="h-6 w-6 text-apex-400" aria-hidden="true"></i><h3 class="mt-3 text-2xl font-bold text-white">Door-to-door delivery</h3><p class="mt-1 text-sm text-zinc-400">First-mile pickup and last-mile delivery are part of the quote, not an add-on you discover later.</p></li>
+      <li class="panel p-5"><i data-lucide="indian-rupee" class="h-6 w-6 text-apex-400" aria-hidden="true"></i><h3 class="mt-3 text-2xl font-bold text-white">Quotes in rupees, GST included</h3><p class="mt-1 text-sm text-zinc-400">The estimate shows freight, fuel surcharge and GST as separate lines, so finance can check it.</p></li>
+    </ul>
+  </div>
+</section>
+
+<!-- Network overview -->
+<section id="network" class="border-y border-white/5 py-16 sm:py-20">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6">
+    <div class="max-w-2xl">
+      <h2 class="text-4xl font-bold text-white sm:text-5xl">Network overview</h2>
+      <p class="mt-3 text-zinc-300">Ten Indian hubs feed nine international gateways. Red lines are our main lanes.</p>
+    </div>
+    <div class="mt-8 grid gap-6 lg:grid-cols-3">
+      <div class="panel grid-dots overflow-hidden p-2 lg:col-span-2">
+        <svg id="networkMap" viewBox="0 0 800 400" class="h-auto w-full" role="img" aria-label="Map of APEX Logistics lanes linking Indian hubs with Singapore, Dubai, Shanghai, Hong Kong, Rotterdam, London, Frankfurt, Los Angeles and New York"></svg>
+      </div>
+      <div class="grid content-start gap-4">
+        <div class="panel p-5"><h3 class="text-2xl font-bold text-white">India: 10 hubs</h3><p class="mt-1 text-sm text-zinc-400">Mumbai, Delhi, Chennai, Kolkata, Bengaluru, Hyderabad, Bhubaneswar, Paradeep, Visakhapatnam and Kochi. Road lanes connect all of them; six have seaports.</p></div>
+        <div class="panel p-5"><h3 class="text-2xl font-bold text-white">Asia and Middle East</h3><p class="mt-1 text-sm text-zinc-400">Singapore, Dubai, Shanghai and Hong Kong, by ocean weekly and by air daily.</p></div>
+        <div class="panel p-5"><h3 class="text-2xl font-bold text-white">Europe and North America</h3><p class="mt-1 text-sm text-zinc-400">Rotterdam, London, Frankfurt, Los Angeles and New York, linked through Dubai and Singapore.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section id="services" class="bg-ink-900 py-16 sm:py-20">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6">
+    <h2 class="max-w-2xl text-4xl font-bold text-white sm:text-5xl">Services</h2>
+    <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <article class="panel overflow-hidden"><div class="flex h-28 items-center justify-center bg-gradient-to-br from-apex/25 to-transparent"><i data-lucide="truck" class="h-12 w-12 text-white" aria-hidden="true"></i></div><div class="p-5"><h3 class="text-2xl font-bold text-white">Road freight</h3><p class="mt-1 text-sm text-zinc-400">Full and part truckloads between Indian cities, with first-mile pickup. Best for 1 to 40 tonnes.</p><p class="mt-3 text-sm text-zinc-300">Typical transit: 2 to 7 days</p></div></article>
+      <article class="panel overflow-hidden"><div class="flex h-28 items-center justify-center bg-gradient-to-br from-apex/25 to-transparent"><i data-lucide="ship" class="h-12 w-12 text-white" aria-hidden="true"></i></div><div class="p-5"><h3 class="text-2xl font-bold text-white">Ocean freight</h3><p class="mt-1 text-sm text-zinc-400">FCL and LCL container shipping between port cities, including customs clearance at both ends.</p><p class="mt-3 text-sm text-zinc-300">Typical transit: 12 to 30 days</p></div></article>
+      <article class="panel overflow-hidden"><div class="flex h-28 items-center justify-center bg-gradient-to-br from-apex/25 to-transparent"><i data-lucide="plane" class="h-12 w-12 text-white" aria-hidden="true"></i></div><div class="p-5"><h3 class="text-2xl font-bold text-white">Air cargo</h3><p class="mt-1 text-sm text-zinc-400">Time-critical freight on scheduled cargo flights, from a few kilograms up to 5 tonnes.</p><p class="mt-3 text-sm text-zinc-300">Typical transit: 2 to 5 days</p></div></article>
+      <article class="panel overflow-hidden"><div class="flex h-28 items-center justify-center bg-gradient-to-br from-apex/25 to-transparent"><i data-lucide="warehouse" class="h-12 w-12 text-white" aria-hidden="true"></i></div><div class="p-5"><h3 class="text-2xl font-bold text-white">Port and warehousing</h3><p class="mt-1 text-sm text-zinc-400">Container handling, bonded storage and cross-docking at our Paradeep and Mumbai yards.</p><p class="mt-3 text-sm text-zinc-300">Quoted on request</p></div></article>
+    </div>
+  </div>
+</section>
+
+<!-- Tracking -->
+<section id="tracking" class="py-16 sm:py-20">
+  <div class="mx-auto max-w-4xl px-4 sm:px-6">
+    <h2 class="text-4xl font-bold text-white sm:text-5xl">Track a shipment</h2>
+    <p class="mt-3 text-zinc-300">Your tracking ID was shown when you booked. It starts with APX.</p>
+    <form id="trackForm" class="panel mt-6 p-5 sm:p-6" novalidate>
+      <label for="trackId" class="lbl">Tracking ID</label>
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <input id="trackId" class="field flex-1" placeholder="APX-20261012-AB12CD34" autocomplete="off" spellcheck="false" aria-describedby="trackId-err" maxlength="40">
+        <button id="trackBtn" class="btn btn-primary" type="submit"><i data-lucide="search" class="h-4 w-4" aria-hidden="true"></i><span>Track shipment</span></button>
+      </div>
+      <p id="trackId-err" class="err" role="alert"></p>
+      <p id="trackDemoHint" class="hidden text-sm text-zinc-400">Demo IDs: <span id="trackChips" class="inline-flex flex-wrap gap-2 align-middle"></span></p>
+    </form>
+    <div id="trackResult" class="mt-6" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- Rate estimator -->
+<section id="estimator" class="border-y border-white/5 bg-ink-900 py-16 sm:py-20">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6">
+    <h2 class="text-4xl font-bold text-white sm:text-5xl">Freight rate estimator</h2>
+    <p class="mt-3 max-w-2xl text-zinc-300">Pick a lane and a weight. The estimate includes fuel surcharge and GST. The final invoice is confirmed when your booking is accepted.</p>
+    <div class="mt-8 grid gap-6 lg:grid-cols-2">
+      <form id="estForm" class="panel p-5 sm:p-6" novalidate>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div><label for="estOrigin" class="lbl">Origin</label><select id="estOrigin" class="field" aria-describedby="estOrigin-err"></select><p id="estOrigin-err" class="err" role="alert"></p></div>
+          <div><label for="estDest" class="lbl">Destination</label><select id="estDest" class="field" aria-describedby="estDest-err"></select><p id="estDest-err" class="err" role="alert"></p></div>
+        </div>
+        <fieldset class="mt-1">
+          <legend class="lbl">Transport mode</legend>
+          <div class="grid grid-cols-3 gap-3">
+            <div class="mode-opt relative"><input type="radio" name="estMode" id="estModeRoad" value="road" checked><label for="estModeRoad"><i data-lucide="truck" class="h-5 w-5" aria-hidden="true"></i>Road</label></div>
+            <div class="mode-opt relative"><input type="radio" name="estMode" id="estModeOcean" value="ocean"><label for="estModeOcean"><i data-lucide="ship" class="h-5 w-5" aria-hidden="true"></i>Ocean</label></div>
+            <div class="mode-opt relative"><input type="radio" name="estMode" id="estModeAir" value="air"><label for="estModeAir"><i data-lucide="plane" class="h-5 w-5" aria-hidden="true"></i>Air</label></div>
+          </div>
+        </fieldset>
+        <div class="mt-4"><label for="estWeight" class="lbl">Cargo weight (kg)</label><input id="estWeight" class="field" type="number" inputmode="decimal" min="1" step="any" placeholder="e.g. 2500" aria-describedby="estWeight-err"><p id="estWeight-err" class="err" role="alert"></p></div>
+        <button id="estBtn" class="btn btn-primary mt-2 w-full sm:w-auto" type="submit"><i data-lucide="calculator" class="h-4 w-4" aria-hidden="true"></i><span>Calculate estimate</span></button>
+      </form>
+      <div class="panel p-5 sm:p-6" aria-live="polite" id="estResult">
+        <div class="flex h-full min-h-[16rem] flex-col items-center justify-center text-center text-zinc-400"><i data-lucide="receipt-indian-rupee" class="h-10 w-10 text-zinc-600" aria-hidden="true"></i><p class="mt-3 max-w-xs">Choose a lane and weight, then calculate to see the cost breakdown here.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Booking -->
+<section id="booking" class="py-16 sm:py-20">
+  <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-5">
+    <div class="lg:col-span-3">
+      <h2 class="text-4xl font-bold text-white sm:text-5xl">Book a shipment</h2>
+      <p class="mt-3 text-zinc-300">We send your tracking reference only after the booking is saved. If saving fails, nothing is booked and you can try again.</p>
+      <form id="bookForm" class="panel mt-6 p-5 sm:p-6" novalidate>
+        <div class="grid gap-x-4 sm:grid-cols-2">
+          <div class="sm:col-span-1"><label for="bkName" class="lbl">Customer name</label><input id="bkName" class="field" autocomplete="name" maxlength="80" aria-describedby="bkName-err"><p id="bkName-err" class="err" role="alert"></p></div>
+          <div><label for="bkEmail" class="lbl">Email</label><input id="bkEmail" type="email" class="field" autocomplete="email" maxlength="120" aria-describedby="bkEmail-err"><p id="bkEmail-err" class="err" role="alert"></p></div>
+          <div><label for="bkOrigin" class="lbl">Origin</label><select id="bkOrigin" class="field" aria-describedby="bkOrigin-err"></select><p id="bkOrigin-err" class="err" role="alert"></p></div>
+          <div><label for="bkDest" class="lbl">Destination</label><select id="bkDest" class="field" aria-describedby="bkDest-err"></select><p id="bkDest-err" class="err" role="alert"></p></div>
+          <div><label for="bkMode" class="lbl">Transport mode</label><select id="bkMode" class="field" aria-describedby="bkMode-err"><option value="">Select mode</option><option value="road">Road</option><option value="ocean">Ocean</option><option value="air">Air</option></select><p id="bkMode-err" class="err" role="alert"></p></div>
+          <div><label for="bkWeight" class="lbl">Cargo weight (kg)</label><input id="bkWeight" type="number" inputmode="decimal" min="1" step="any" class="field" aria-describedby="bkWeight-err"><p id="bkWeight-err" class="err" role="alert"></p></div>
+          <div class="sm:col-span-2"><label for="bkCost" class="lbl">Estimated cost (incl. GST)</label><input id="bkCost" class="field" readonly placeholder="Fill in the lane, mode and weight" aria-describedby="bkCost-err"><p id="bkCost-err" class="err" role="alert"></p></div>
+        </div>
+        <p id="bkFormError" class="mb-3 hidden rounded-lg border border-red-500/40 bg-red-950/40 p-3 text-sm text-red-200" role="alert"></p>
+        <button id="bkBtn" class="btn btn-primary w-full sm:w-auto" type="submit"><i data-lucide="package-check" class="h-4 w-4" aria-hidden="true"></i><span>Confirm booking</span></button>
+      </form>
+    </div>
+    <aside class="lg:col-span-2" aria-live="polite">
+      <div id="bkConfirm" class="panel hidden border-green-500/30 p-6"></div>
+      <div id="bkInfo" class="panel p-6">
+        <h3 class="text-2xl font-bold text-white">What happens next</h3>
+        <ol class="mt-4 space-y-4 text-sm text-zinc-300">
+          <li class="flex gap-3"><i data-lucide="mail-check" class="mt-0.5 h-5 w-5 shrink-0 text-apex-400" aria-hidden="true"></i><span>Your booking is saved and you get a tracking ID on this page.</span></li>
+          <li class="flex gap-3"><i data-lucide="phone-call" class="mt-0.5 h-5 w-5 shrink-0 text-apex-400" aria-hidden="true"></i><span>Our operations team confirms the pickup slot with you by email.</span></li>
+          <li class="flex gap-3"><i data-lucide="map-pin" class="mt-0.5 h-5 w-5 shrink-0 text-apex-400" aria-hidden="true"></i><span>Use the tracking ID any time to see where your cargo is.</span></li>
+        </ol>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- Admin -->
+<section id="admin" class="border-t border-white/5 bg-ink-900 py-16 sm:py-20">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6">
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div><h2 class="text-4xl font-bold text-white sm:text-5xl">Admin access</h2><p id="adminSub" class="mt-3 text-zinc-300">For APEX operations staff. Sign in to manage shipments.</p></div>
+      <button id="logoutBtn" class="btn btn-ghost hidden"><i data-lucide="log-out" class="h-4 w-4" aria-hidden="true"></i>Sign out</button>
+    </div>
+
+    <div id="loginWrap" class="mt-8 grid gap-6 lg:grid-cols-2">
+      <form id="loginForm" class="panel p-5 sm:p-6" novalidate>
+        <label for="adEmail" class="lbl">Work email</label>
+        <input id="adEmail" type="email" class="field" autocomplete="username" aria-describedby="adEmail-err"><p id="adEmail-err" class="err" role="alert"></p>
+        <label for="adPass" class="lbl">Password</label>
+        <div class="relative"><input id="adPass" type="password" class="field pr-12" autocomplete="current-password" aria-describedby="adPass-err"><button type="button" id="togglePass" class="absolute right-1 top-1 rounded p-2.5 text-zinc-400 hover:text-white" aria-label="Show password" aria-pressed="false"><i data-lucide="eye" class="h-4 w-4" aria-hidden="true"></i></button></div>
+        <p id="adPass-err" class="err" role="alert"></p>
+        <p id="loginError" class="mb-3 hidden rounded-lg border border-red-500/40 bg-red-950/40 p-3 text-sm text-red-200" role="alert"></p>
+        <button id="loginBtn" class="btn btn-primary w-full" type="submit"><i data-lucide="lock-keyhole" class="h-4 w-4" aria-hidden="true"></i><span>Sign in</span></button>
+        <p id="demoCreds" class="mt-4 hidden rounded-lg bg-white/5 p-3 text-sm text-zinc-300">Demo login: <code class="text-white">admin@apexlogistics.demo</code> / <code class="text-white">Demo@1234</code></p>
+      </form>
+      <div class="panel p-6 text-sm text-zinc-300">
+        <h3 class="text-2xl font-bold text-white">Inside the dashboard</h3>
+        <ul class="mt-4 space-y-3">
+          <li class="flex gap-3"><i data-lucide="chart-column" class="mt-0.5 h-5 w-5 shrink-0 text-apex-400" aria-hidden="true"></i>Revenue totals and a six-month revenue chart</li>
+          <li class="flex gap-3"><i data-lucide="chart-pie" class="mt-0.5 h-5 w-5 shrink-0 text-apex-400" aria-hidden="true"></i>Shipment split by road, ocean and air</li>
+          <li class="flex gap-3"><i data-lucide="clock" class="mt-0.5 h-5 w-5 shrink-0 text-apex-400" aria-hidden="true"></i>Pending shipments waiting for confirmation</li>
+          <li class="flex gap-3"><i data-lucide="truck" class="mt-0.5 h-5 w-5 shrink-0 text-apex-400" aria-hidden="true"></i>Active fleet status</li>
+          <li class="flex gap-3"><i data-lucide="pencil" class="mt-0.5 h-5 w-5 shrink-0 text-apex-400" aria-hidden="true"></i>Update shipment status and current location</li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="dashWrap" class="mt-8 hidden">
+      <div id="dashLoading" class="hidden grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-hidden="true">
+        <div class="skeleton h-28"></div><div class="skeleton h-28"></div><div class="skeleton h-28"></div><div class="skeleton h-28"></div>
+      </div>
+      <p id="dashError" class="hidden rounded-lg border border-red-500/40 bg-red-950/40 p-4 text-sm text-red-200" role="alert"></p>
+      <div id="dashContent" class="hidden space-y-6">
+        <div id="kpis" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></div>
+        <div class="grid gap-6 lg:grid-cols-3">
+          <div class="panel p-5 lg:col-span-2"><h3 class="text-2xl font-bold text-white">Monthly revenue</h3><p class="text-sm text-zinc-400">Booked value in rupees, excluding cancelled shipments</p><div class="relative mt-4 h-64"><canvas id="revChart" role="img" aria-label="Bar chart of monthly revenue"></canvas></div></div>
+          <div class="panel p-5"><h3 class="text-2xl font-bold text-white">Freight mode</h3><p class="text-sm text-zinc-400">Shipments by mode</p><div class="relative mt-4 h-64"><canvas id="modeChart" role="img" aria-label="Doughnut chart of shipments by freight mode"></canvas></div></div>
+        </div>
+        <div class="panel p-5"><h3 class="text-2xl font-bold text-white">Active fleet</h3><div id="fleetList" class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5"></div></div>
+        <div class="panel p-5">
+          <div class="flex flex-wrap items-end justify-between gap-3">
+            <h3 class="text-2xl font-bold text-white">Shipments</h3>
+            <div class="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+              <div><label for="tblSearch" class="sr-only">Search shipments</label><input id="tblSearch" class="field !min-h-[40px] sm:w-64" placeholder="Search ID, customer or city"></div>
+              <div><label for="tblStatus" class="sr-only">Filter by status</label><select id="tblStatus" class="field !min-h-[40px]"><option value="">All statuses</option></select></div>
+            </div>
+          </div>
+          <div class="mt-4 overflow-x-auto rounded-lg border border-white/5">
+            <table class="w-full min-w-[860px] text-left text-sm">
+              <caption class="sr-only">Shipment records</caption>
+              <thead class="bg-white/5 text-zinc-400"><tr><th scope="col" class="px-3 py-2.5 font-medium">Tracking ID</th><th scope="col" class="px-3 py-2.5 font-medium">Customer</th><th scope="col" class="px-3 py-2.5 font-medium">Route</th><th scope="col" class="px-3 py-2.5 font-medium">Mode</th><th scope="col" class="px-3 py-2.5 text-right font-medium">Cost</th><th scope="col" class="px-3 py-2.5 font-medium">Status</th><th scope="col" class="px-3 py-2.5 font-medium">Location</th><th scope="col" class="px-3 py-2.5 font-medium"><span class="sr-only">Actions</span></th></tr></thead>
+              <tbody id="tblBody" class="divide-y divide-white/5"></tbody>
+            </table>
+          </div>
+          <div class="mt-3 flex items-center justify-between text-sm text-zinc-400"><span id="tblCount" aria-live="polite"></span><button id="tblMore" class="btn btn-ghost !min-h-[40px] hidden">Show more</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- Footer -->
+<footer class="border-t border-white/10 bg-ink-950 py-12">
+  <div class="mx-auto grid max-w-7xl gap-8 px-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+    <div><div class="flex items-center gap-2.5"><svg class="h-9 w-9" aria-hidden="true"><use href="#logo-mark"/></svg><span class="font-display text-2xl font-extrabold text-white">APEX <span class="font-semibold text-zinc-400">Logistics</span></span></div><p class="mt-3 text-sm text-zinc-400">Global and domestic supply chain, by road, ocean and air.</p></div>
+    <nav aria-label="Footer services"><h2 class="font-display text-xl font-bold text-white">Services</h2><ul class="mt-3 space-y-2 text-sm text-zinc-400"><li><a class="hover:text-white" href="#services">Road freight</a></li><li><a class="hover:text-white" href="#services">Ocean freight</a></li><li><a class="hover:text-white" href="#services">Air cargo</a></li><li><a class="hover:text-white" href="#estimator">Rate estimator</a></li></ul></nav>
+    <nav aria-label="Footer customers"><h2 class="font-display text-xl font-bold text-white">Customers</h2><ul class="mt-3 space-y-2 text-sm text-zinc-400"><li><a class="hover:text-white" href="#tracking">Track a shipment</a></li><li><a class="hover:text-white" href="#booking">Book a shipment</a></li><li><a class="hover:text-white" href="#admin">Admin access</a></li></ul></nav>
+    <div><h2 class="font-display text-xl font-bold text-white">Contact</h2><ul class="mt-3 space-y-2 text-sm text-zinc-400"><li class="flex items-center gap-2"><i data-lucide="mail" class="h-4 w-4" aria-hidden="true"></i>ops@apexlogistics.example</li><li class="flex items-center gap-2"><i data-lucide="map-pin" class="h-4 w-4" aria-hidden="true"></i>Bhubaneswar, Odisha, India</li></ul></div>
+  </div>
+  <p class="mx-auto mt-10 max-w-7xl border-t border-white/10 px-4 pt-6 text-sm text-zinc-500 sm:px-6">© <span id="year"></span> APEX Logistics. All rights reserved.</p>
+</footer>
+
+<!-- Edit shipment dialog -->
+<dialog id="editDialog" aria-labelledby="editTitle">
+  <form id="editForm" novalidate>
+    <div class="border-b border-white/10 p-5"><h2 id="editTitle" class="text-3xl font-bold text-white">Update shipment</h2><p id="editId" class="mt-1 text-sm text-zinc-400"></p></div>
+    <div class="p-5">
+      <label for="edStatus" class="lbl">Status</label><select id="edStatus" class="field"></select>
+      <div class="mt-4"><label for="edLoc" class="lbl">Current location</label><input id="edLoc" class="field" maxlength="120" aria-describedby="edLoc-err"><p id="edLoc-err" class="err" role="alert"></p></div>
+      <p id="edError" class="hidden rounded-lg border border-red-500/40 bg-red-950/40 p-3 text-sm text-red-200" role="alert"></p>
+    </div>
+    <div class="flex justify-end gap-2 border-t border-white/10 p-5"><button type="button" id="edCancel" class="btn btn-ghost">Cancel</button><button id="edSave" type="submit" class="btn btn-primary"><span>Save changes</span></button></div>
+  </form>
+</dialog>
+
+<div id="toasts" class="pointer-events-none fixed bottom-4 right-4 z-[100] flex w-[min(24rem,calc(100vw-2rem))] flex-col gap-2" style="bottom:calc(1rem + env(safe-area-inset-bottom,0px))" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* =====================================================================
+   CONFIG - edit these. API_BASE points at the Catalyst function; set it to '' to run the built-in demo.
+   Catalyst serves the client and the function on one domain, so a relative path works.
+   Pricing rules must match functions/apex_api/main.py (the server recomputes every price).
+   ===================================================================== */
+const CONFIG = {
+  API_BASE: '/server/apex_api',
+  PRICING: {
+    gstPct: 0.18,
+    modes: {
+      road:  { base: 1800, perKgPer1000Km: 5.5, minCharge: 3500,  fuelPct: 0.09, circuity: 1.25, transitBase: 1, kmPerDay: 450,  minKg: 1,   maxKg: 40000 },
+      ocean: { base: 9000, perKgPer1000Km: 2.2, minCharge: 15000, fuelPct: 0.06, circuity: 1.35, transitBase: 6, kmPerDay: 700,  minKg: 100, maxKg: 500000 },
+      air:   { base: 6000, perKgPer1000Km: 9.0, minCharge: 8000,  fuelPct: 0.12, circuity: 1.0,  transitBase: 2, kmPerDay: 7000, minKg: 1,   maxKg: 5000 }
+    }
+  }
+};
+
+const HUBS = [
+  { id: 'mumbai', name: 'Mumbai', country: 'IN', lat: 19.08, lon: 72.88, port: true },
+  { id: 'delhi', name: 'Delhi', country: 'IN', lat: 28.61, lon: 77.21, port: false },
+  { id: 'chennai', name: 'Chennai', country: 'IN', lat: 13.08, lon: 80.27, port: true },
+  { id: 'kolkata', name: 'Kolkata', country: 'IN', lat: 22.57, lon: 88.36, port: true },
+  { id: 'bengaluru', name: 'Bengaluru', country: 'IN', lat: 12.97, lon: 77.59, port: false },
+  { id: 'hyderabad', name: 'Hyderabad', country: 'IN', lat: 17.39, lon: 78.49, port: false },
+  { id: 'bhubaneswar', name: 'Bhubaneswar', country: 'IN', lat: 20.30, lon: 85.82, port: false },
+  { id: 'paradeep', name: 'Paradeep Port', country: 'IN', lat: 20.26, lon: 86.67, port: true },
+  { id: 'visakhapatnam', name: 'Visakhapatnam', country: 'IN', lat: 17.69, lon: 83.22, port: true },
+  { id: 'kochi', name: 'Kochi', country: 'IN', lat: 9.93, lon: 76.27, port: true },
+  { id: 'singapore', name: 'Singapore', country: 'SG', lat: 1.35, lon: 103.82, port: true },
+  { id: 'dubai', name: 'Dubai', country: 'AE', lat: 25.20, lon: 55.27, port: true },
+  { id: 'shanghai', name: 'Shanghai', country: 'CN', lat: 31.23, lon: 121.47, port: true },
+  { id: 'hongkong', name: 'Hong Kong', country: 'HK', lat: 22.32, lon: 114.17, port: true },
+  { id: 'rotterdam', name: 'Rotterdam', country: 'NL', lat: 51.92, lon: 4.48, port: true },
+  { id: 'london', name: 'London', country: 'GB', lat: 51.51, lon: -0.13, port: true },
+  { id: 'frankfurt', name: 'Frankfurt', country: 'DE', lat: 50.11, lon: 8.68, port: false },
+  { id: 'losangeles', name: 'Los Angeles', country: 'US', lat: 34.05, lon: -118.24, port: true },
+  { id: 'newyork', name: 'New York', country: 'US', lat: 40.71, lon: -74.01, port: true }
+];
+const HUB = Object.fromEntries(HUBS.map(h => [h.id, h]));
+const hubName = id => (HUB[id] ? HUB[id].name : id);
+
+const STATUS_STEPS = ['Pending', 'Confirmed', 'In Transit', 'At Hub', 'Out for Delivery', 'Delivered'];
+const STATUSES = [...STATUS_STEPS, 'Delayed', 'Cancelled'];
+const ACTIVE = new Set(['Confirmed', 'In Transit', 'At Hub', 'Out for Delivery', 'Delayed']);
+const MODES = { road: { label: 'Road', icon: 'truck' }, ocean: { label: 'Ocean', icon: 'ship' }, air: { label: 'Air', icon: 'plane' } };
+const TRACKING_RE = /^APX-\d{8}-[A-Z0-9]{8}$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+/* ---------------------------------------------------------------- helpers */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const inr = n => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
+const num = n => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 1 }).format(n);
+const fmtDate = iso => { const d = new Date(iso); return isNaN(d) ? '–' : d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }); };
+const icons = () => { if (window.lucide) window.lucide.createIcons(); };
+const badge = s => `<span class="badge b-${String(s).replace(/\s+/g, '-')}">${esc(s)}</span>`;
+
+function toast(msg, type = 'ok') {
+  const el = document.createElement('div');
+  el.className = 'pointer-events-auto flex items-start gap-2 rounded-lg border px-4 py-3 text-sm shadow-xl ' +
+    (type === 'ok' ? 'border-green-500/40 bg-green-950 text-green-100' : 'border-red-500/40 bg-red-950 text-red-100');
+  el.textContent = msg;
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), 4500);
+}
+function setBusy(btn, busy, label) {
+  btn.disabled = busy;
+  const span = $('span', btn);
+  if (busy) { btn.dataset.label = span.textContent; span.textContent = label || 'Working…'; btn.insertAdjacentHTML('afterbegin', '<span class="spinner" data-spin aria-hidden="true"></span>'); }
+  else { span.textContent = btn.dataset.label || span.textContent; $$('[data-spin]', btn).forEach(n => n.remove()); }
+}
+function fieldError(id, msg) {
+  const input = $('#' + id), err = $('#' + id + '-err');
+  if (err) err.textContent = msg || '';
+  if (input) { if (msg) input.setAttribute('aria-invalid', 'true'); else input.removeAttribute('aria-invalid'); }
+  return !msg;
+}
+function showBox(el, msg) { el.textContent = msg || ''; el.classList.toggle('hidden', !msg); }
+
+/* ---------------------------------------------------------------- pricing */
+function haversine(a, b) {
+  const R = 6371, rad = x => x * Math.PI / 180;
+  const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+function estimate({ origin, destination, mode, weightKg }) {
+  const o = HUB[origin], d = HUB[destination], rule = CONFIG.PRICING.modes[mode];
+  if (!o || !d) return { ok: false, field: !o ? 'origin' : 'destination', error: 'Select an origin and a destination.' };
+  if (o.id === d.id) return { ok: false, field: 'destination', error: 'Origin and destination must be different.' };
+  if (!rule) return { ok: false, field: 'mode', error: 'Select a transport mode.' };
+  if (!(weightKg > 0)) return { ok: false, field: 'weight', error: 'Enter the cargo weight in kg.' };
+  if (weightKg < rule.minKg || weightKg > rule.maxKg) return { ok: false, field: 'weight', error: `${MODES[mode].label} freight accepts ${num(rule.minKg)} to ${num(rule.maxKg)} kg.` };
+  if (mode === 'road' && !(o.country === 'IN' && d.country === 'IN')) return { ok: false, field: 'mode', error: 'Road freight covers domestic (India) lanes only. Choose air or ocean for this lane.' };
+  if (mode === 'ocean' && !(o.port && d.port)) return { ok: false, field: 'mode', error: 'Ocean freight needs a port at both ends. Pick port cities such as Mumbai or Paradeep, or choose air.' };
+  const km = Math.round(haversine(o, d) * rule.circuity);
+  const raw = rule.base + rule.perKgPer1000Km * weightKg * (km / 1000);
+  const freight = Math.round(Math.max(rule.minCharge, raw));
+  const fuel = Math.round(freight * rule.fuelPct);
+  const gst = Math.round((freight + fuel) * CONFIG.PRICING.gstPct);
+  return { ok: true, km, freight, fuel, gst, total: freight + fuel + gst, transitDays: rule.transitBase + Math.ceil(km / rule.kmPerDay) };
+}
+
+/* ---------------------------------------------------------------- API layer */
+class ApiError extends Error { constructor(status, message) { super(message); this.status = status; } }
+let adminToken = null;
+try { adminToken = sessionStorage.getItem('apexAdminToken'); } catch (e) { /* storage unavailable */ }
+const saveToken = t => { adminToken = t; try { t ? sessionStorage.setItem('apexAdminToken', t) : sessionStorage.removeItem('apexAdminToken'); } catch (e) {} };
+
+async function api(method, path, body, auth) {
+  if (!CONFIG.API_BASE) return mock.handle(method, path, body, auth ? adminToken : null);
+  const headers = { 'Content-Type': 'application/json' };
+  if (auth && adminToken) { headers.Authorization = adminToken; headers['X-Apex-Token'] = adminToken; }
+  const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 15000);
+  let res;
+  try {
+    res = await fetch(CONFIG.API_BASE.replace(/\/$/, '') + path, { method, headers, body: body ? JSON.stringify(body) : undefined, signal: ctrl.signal });
+  } catch (e) {
+    throw new ApiError(0, e.name === 'AbortError' ? 'The request timed out. Try again.' : 'Cannot reach the server. Check your connection and try again.');
+  } finally { clearTimeout(timer); }
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) throw new ApiError(res.status, (data && data.message) || `Request failed (${res.status}).`);
+  return data;
+}
+
+/* ------------- In-browser demo backend (used only when API_BASE is empty).
+   It mimics the real endpoints so every screen can be tried without AWS.   */
+const mock = (() => {
+  const DEMO_TOKEN = 'demo-token';
+  const delay = ms => new Promise(r => setTimeout(r, ms));
+  function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const ymd = d => d.toISOString().slice(0, 10).replace(/-/g, '');
+  const DAY = 864e5;
+  const rand = rng(2026), pick = a => a[Math.floor(rand() * a.length)];
+  const names = ['Tata Steel Ltd', 'Reliance Retail', 'Kalinga Foods', 'Sunrise Pharma', 'Eastern Textiles', 'BlueWave Exports', 'Nova Electronics', 'Orion Auto Parts', 'Mahindra Agri', 'Utkal Handicrafts Co-op'];
+  const db = [];
+  function make(i, o, d, mode, weight, ageDays, status, loc, suffix) {
+    const q = estimate({ origin: o, destination: d, mode, weightKg: weight });
+    const created = new Date(Date.now() - ageDays * DAY);
+    const eta = new Date(created.getTime() + q.transitDays * DAY).toISOString().slice(0, 10);
+    const sfx = suffix || Array.from({ length: 8 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.floor(rand() * 32)]).join('');
+    return { trackingId: `APX-${ymd(created)}-${sfx}`, status, customerName: names[i % names.length], email: `ops${i}@example.com`, origin: o, destination: d, currentLocation: loc, mode, weightKg: weight, estimatedCost: q.total, estimatedDelivery: eta, createdAt: created.toISOString(), updatedAt: created.toISOString() };
+  }
+  db.push(make(0, 'bhubaneswar', 'delhi', 'road', 8400, 3, 'In Transit', 'Nagpur Hub', 'DEMO0001'));
+  db.push(make(1, 'paradeep', 'rotterdam', 'ocean', 18000, 9, 'In Transit', 'Arabian Sea, off Mumbai', 'DEMO0002'));
+  db.push(make(2, 'mumbai', 'london', 'air', 320, 0, 'Pending', 'Mumbai', 'DEMO0003'));
+  for (let i = 3; i < 34; i++) {
+    const mode = pick(['road', 'road', 'ocean', 'air', 'ocean']);
+    let o, d, probe, guard = 0;
+    do { o = pick(HUBS).id; d = pick(HUBS).id; probe = estimate({ origin: o, destination: d, mode, weightKg: 500 }); } while (!probe.ok && ++guard < 80);
+    if (!probe.ok) continue;
+    const w = mode === 'air' ? 20 + Math.floor(rand() * 600) : mode === 'road' ? 500 + Math.floor(rand() * 12000) : 2000 + Math.floor(rand() * 30000);
+    const age = Math.floor(rand() * 170);
+    const q = estimate({ origin: o, destination: d, mode, weightKg: w });
+    let status = 'Delivered', loc = hubName(d);
+    if (age <= q.transitDays + 1) {
+      const p = age / q.transitDays;
+      status = p < 0.08 ? pick(['Pending', 'Confirmed']) : p < 0.6 ? 'In Transit' : p < 0.9 ? 'At Hub' : 'Out for Delivery';
+      loc = status === 'Pending' ? hubName(o) : status === 'Out for Delivery' ? hubName(d) : pick(['Mid-route hub', hubName(o) + ' yard', hubName(d) + ' gateway']);
+    } else if (rand() < 0.07) { status = 'Cancelled'; loc = hubName(o); }
+    db.push(make(i, o, d, mode, w, age, status, loc));
+  }
+  const fleet = [
+    { vehicleId: 'TRK-101', type: 'Truck', name: 'Tata Prima 5530', status: 'Active', location: 'Nagpur' },
+    { vehicleId: 'TRK-102', type: 'Truck', name: 'Ashok Leyland 4825', status: 'Active', location: 'Bhubaneswar' },
+    { vehicleId: 'TRK-103', type: 'Truck', name: 'BharatBenz 3523', status: 'Maintenance', location: 'Kolkata depot' },
+    { vehicleId: 'TRK-104', type: 'Truck', name: 'Eicher Pro 6048', status: 'Idle', location: 'Delhi depot' },
+    { vehicleId: 'TRL-201', type: 'Trailer', name: '40 ft container trailer', status: 'Active', location: 'Paradeep Port' },
+    { vehicleId: 'VSL-301', type: 'Vessel', name: 'MV Apex Utkal', status: 'Active', location: 'Arabian Sea' },
+    { vehicleId: 'VSL-302', type: 'Vessel', name: 'MV Apex Konark', status: 'Active', location: 'Singapore' },
+    { vehicleId: 'AIR-401', type: 'Aircraft', name: 'Boeing 737-800BCF', status: 'Active', location: 'Mumbai (BOM)' },
+    { vehicleId: 'AIR-402', type: 'Aircraft', name: 'ATR 72-500F', status: 'Idle', location: 'Bengaluru (BLR)' },
+    { vehicleId: 'TRK-105', type: 'Truck', name: 'Tata Signa 4825', status: 'Active', location: 'Hyderabad' }
+  ];
+  function summary() {
+    const now = new Date(), months = [], rev = {};
+    for (let i = 5; i >= 0; i--) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); months.push({ key, label: d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' }) }); rev[key] = 0; }
+    const modes = { road: 0, ocean: 0, air: 0 }; let total = 0, pending = 0, active = 0;
+    db.forEach(s => {
+      modes[s.mode]++;
+      if (s.status === 'Cancelled') return;
+      total += s.estimatedCost;
+      const k = s.createdAt.slice(0, 7); if (k in rev) rev[k] += s.estimatedCost;
+      if (s.status === 'Pending') pending++;
+      if (ACTIVE.has(s.status)) active++;
+    });
+    return { totalRevenue: total, monthRevenue: rev[months[5].key], pendingCount: pending, activeCount: active, modeBreakdown: modes, monthlyRevenue: months.map(m => ({ month: m.label, revenue: rev[m.key] })) };
+  }
+  const pub = ({ email, estimatedCost, updatedAt, ...rest }) => rest;
+  return {
+    demoIds: () => db.slice(0, 3).map(s => s.trackingId),
+    async handle(method, path, body, token) {
+      await delay(450 + Math.random() * 350);
+      let m;
+      if (method === 'GET' && (m = path.match(/^\/track\/(.+)$/))) {
+        const id = decodeURIComponent(m[1]).toUpperCase();
+        if (!TRACKING_RE.test(id)) throw new ApiError(400, 'Tracking IDs look like APX-20261012-AB12CD34.');
+        const s = db.find(x => x.trackingId === id);
+        if (!s) throw new ApiError(404, 'No shipment found for that tracking ID.');
+        return pub(s);
+      }
+      if (method === 'POST' && path === '/bookings') {
+        const b = body || {};
+        if (!b.customerName || b.customerName.trim().length < 2) throw new ApiError(400, 'Customer name must be 2-80 characters.');
+        if (!EMAIL_RE.test(b.email || '')) throw new ApiError(400, 'Enter a valid email address.');
+        const q = estimate({ origin: b.origin, destination: b.destination, mode: b.mode, weightKg: Number(b.weightKg) });
+        if (!q.ok) throw new ApiError(400, q.error);
+        const s = make(db.length, b.origin, b.destination, b.mode, Number(b.weightKg), 0, 'Pending', hubName(b.origin));
+        s.customerName = b.customerName.trim(); s.email = b.email.trim().toLowerCase();
+        db.unshift(s);
+        return { trackingId: s.trackingId, status: s.status, estimatedCost: s.estimatedCost, estimatedDelivery: s.estimatedDelivery, createdAt: s.createdAt };
+      }
+      if (method === 'POST' && path === '/admin/login') {
+        if (body.email === 'admin@apexlogistics.demo' && body.password === 'Demo@1234') return { idToken: DEMO_TOKEN, expiresIn: 3600 };
+        throw new ApiError(401, 'Invalid email or password.');
+      }
+      if (path.startsWith('/admin/') && token !== DEMO_TOKEN) throw new ApiError(401, 'Your session has expired. Sign in again.');
+      if (method === 'GET' && path === '/admin/dashboard') return { summary: summary(), shipments: [...db].sort((a, b) => b.createdAt.localeCompare(a.createdAt)), fleet };
+      if (method === 'PATCH' && (m = path.match(/^\/admin\/shipments\/(.+)$/))) {
+        const s = db.find(x => x.trackingId === decodeURIComponent(m[1]));
+        if (!s) throw new ApiError(404, 'Shipment not found.');
+        if (body.status !== undefined) { if (!STATUSES.includes(body.status)) throw new ApiError(400, 'Unknown status.'); s.status = body.status; }
+        if (body.currentLocation !== undefined) { const l = String(body.currentLocation).trim(); if (!l || l.length > 120) throw new ApiError(400, 'Location must be 1-120 characters.'); s.currentLocation = l; }
+        s.updatedAt = new Date().toISOString();
+        return s;
+      }
+      throw new ApiError(404, 'Not found.');
+    }
+  };
+})();
+
+/* ---------------------------------------------------------------- UI: shell */
+const demo = !CONFIG.API_BASE;
+$('#year').textContent = new Date().getFullYear();
+if (demo) { $('#demoNotice').classList.remove('hidden'); $('#demoCreds').classList.remove('hidden'); $('#trackDemoHint').classList.remove('hidden'); }
+$('#noticeClose').addEventListener('click', () => $('#systemNotice').remove());
+
+const menuBtn = $('#menuBtn'), mobileMenu = $('#mobileMenu');
+function setMenu(open) { mobileMenu.classList.toggle('hidden', !open); menuBtn.setAttribute('aria-expanded', open); menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); }
+menuBtn.addEventListener('click', () => setMenu(menuBtn.getAttribute('aria-expanded') !== 'true'));
+$$('a', mobileMenu).forEach(a => a.addEventListener('click', () => setMenu(false)));
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && menuBtn.getAttribute('aria-expanded') === 'true') { setMenu(false); menuBtn.focus(); } });
+
+const navLinks = $$('.nav-link');
+if ('IntersectionObserver' in window) {
+  const io = new IntersectionObserver(entries => entries.forEach(en => {
+    if (en.isIntersecting) navLinks.forEach(a => { const on = a.getAttribute('href') === '#' + en.target.id; a.classList.toggle('text-white', on); a.classList.toggle('bg-white/5', on); if (on) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); });
+  }), { rootMargin: '-45% 0px -50% 0px' });
+  $$('main section[id]').forEach(s => io.observe(s));
+}
+
+/* ---------------------------------------------------------------- UI: artwork */
+(function artwork() {
+  const ns = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs, parent) => { const n = document.createElementNS(ns, tag); Object.entries(attrs).forEach(([k, v]) => n.setAttribute(k, v)); parent.appendChild(n); return n; };
+  // ship containers
+  const g = $('#shipContainers'), cols = ['#e11d2e', '#9ca3af', '#f4f4f5', '#c81727', '#52525b', '#d4d4d8'];
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 12 - r; c++) {
+    const x = 130 + c * 31 + r * 8, y = 282 - r * 17;
+    el('rect', { x, y, width: 29, height: 15, rx: 1, fill: cols[(c * 3 + r * 5) % cols.length] }, g);
+  }
+  // skyline: cranes and container stacks
+  const sk = $('#skyline');
+  el('rect', { x: 0, y: 52, width: 1200, height: 12, fill: 'currentColor' }, sk);
+  for (let x = 20; x < 1200; x += 150) {
+    const stack = el('g', {}, sk);
+    for (let i = 0; i < 3; i++) el('rect', { x: x + (i % 2) * 6, y: 40 - i * 11, width: 50, height: 10, fill: i === 1 ? '#e11d2e' : 'currentColor', opacity: i === 1 ? .8 : 1 }, stack);
+    const cx = x + 90;
+    el('path', { d: `M${cx} 52V14M${cx + 22} 52V14M${cx - 18} 14H${cx + 40}M${cx} 14l14-12 8 12`, stroke: 'currentColor', 'stroke-width': 3, fill: 'none' }, sk);
+  }
+  // network map
+  const map = $('#networkMap'), W = 800, H = 400;
+  const P = h => [((h.lon + 130) / 260) * W, ((60 - h.lat) / 65) * H];
+  const lanes = [['mumbai', 'dubai'], ['dubai', 'rotterdam'], ['rotterdam', 'london'], ['london', 'newyork'], ['newyork', 'losangeles'], ['mumbai', 'singapore'], ['singapore', 'hongkong'], ['hongkong', 'shanghai'], ['shanghai', 'losangeles'], ['paradeep', 'singapore'], ['delhi', 'frankfurt'], ['chennai', 'singapore'], ['mumbai', 'delhi'], ['delhi', 'bhubaneswar'], ['kolkata', 'bhubaneswar'], ['hyderabad', 'bengaluru']];
+  lanes.forEach(([a, b]) => {
+    const [x1, y1] = P(HUB[a]), [x2, y2] = P(HUB[b]);
+    const dist = Math.hypot(x2 - x1, y2 - y1);
+    el('path', { d: `M${x1} ${y1}Q${(x1 + x2) / 2} ${(y1 + y2) / 2 - dist * 0.28} ${x2} ${y2}`, fill: 'none', stroke: '#e11d2e', 'stroke-width': 1.6, 'stroke-opacity': .75, class: 'lane' }, map);
+  });
+  const labelled = new Set(['mumbai', 'delhi', 'paradeep', 'singapore', 'dubai', 'shanghai', 'rotterdam', 'london', 'newyork', 'losangeles', 'frankfurt', 'hongkong']);
+  HUBS.forEach(h => {
+    const [x, y] = P(h), india = h.country === 'IN';
+    const c = el('circle', { cx: x, cy: y, r: india ? 3.5 : 5, fill: india ? '#ff4757' : '#f4f4f5', stroke: '#0a0a0b', 'stroke-width': 1.5 }, map);
+    el('title', {}, c).textContent = h.name + (h.port ? ' (port)' : '');
+    if (labelled.has(h.id)) { const t = el('text', { x: x + 8, y: y - 7, fill: '#a1a1aa', 'font-size': 12, 'font-family': 'IBM Plex Sans, sans-serif' }, map); t.textContent = h.name; }
+  });
+  $$('text', map).forEach(t => { if (parseFloat(t.getAttribute('x')) > W - 90) { t.setAttribute('x', parseFloat(t.getAttribute('x')) - 16); t.setAttribute('text-anchor', 'end'); } });
+})();
+
+/* ---------------------------------------------------------------- UI: selects */
+function fillHubSelect(sel, placeholder) {
+  const opt = (v, t) => `<option value="${v}">${esc(t)}</option>`;
+  sel.innerHTML = opt('', placeholder) +
+    '<optgroup label="India">' + HUBS.filter(h => h.country === 'IN').map(h => opt(h.id, h.name + (h.port ? ' (port)' : ''))).join('') + '</optgroup>' +
+    '<optgroup label="International">' + HUBS.filter(h => h.country !== 'IN').map(h => opt(h.id, h.name)).join('') + '</optgroup>';
+}
+['#estOrigin', '#bkOrigin'].forEach(s => fillHubSelect($(s), 'Select origin'));
+['#estDest', '#bkDest'].forEach(s => fillHubSelect($(s), 'Select destination'));
+
+/* ---------------------------------------------------------------- UI: tracking */
+const trackResult = $('#trackResult');
+function trackSkeleton() {
+  trackResult.innerHTML = '<div class="panel p-6" aria-busy="true"><div class="skeleton h-8 w-2/3"></div><div class="mt-6 grid gap-4 sm:grid-cols-2"><div class="skeleton h-14"></div><div class="skeleton h-14"></div><div class="skeleton h-14"></div><div class="skeleton h-14"></div></div></div>';
+}
+function trackMessage(kind, title, text) {
+  const tone = kind === 'error' ? 'border-red-500/40 bg-red-950/40' : 'border-white/10';
+  const icon = kind === 'error' ? 'circle-alert' : 'package-search';
+  trackResult.innerHTML = `<div class="panel ${tone} flex items-start gap-4 p-6" ${kind === 'error' ? 'role="alert"' : ''}><i data-lucide="${icon}" class="mt-1 h-6 w-6 shrink-0 ${kind === 'error' ? 'text-red-300' : 'text-zinc-500'}" aria-hidden="true"></i><div><h3 class="text-2xl font-bold text-white">${esc(title)}</h3><p class="mt-1 text-zinc-300">${esc(text)}</p></div></div>`;
+  icons();
+}
+function trackSuccess(s) {
+  const idx = STATUS_STEPS.indexOf(s.status);
+  const steps = STATUS_STEPS.map((st, i) => {
+    const done = idx >= 0 && i <= idx, now = i === idx;
+    return `<li class="flex flex-1 flex-col items-center gap-1.5 text-center"><span class="flex h-8 w-8 items-center justify-center rounded-full border ${done ? 'border-apex bg-apex text-white' : 'border-zinc-700 text-zinc-500'} ${now ? 'ring-4 ring-apex/25' : ''}" ${now ? 'aria-current="step"' : ''}><i data-lucide="${done ? 'check' : 'circle'}" class="h-4 w-4" aria-hidden="true"></i></span><span class="text-xs ${done ? 'text-zinc-100' : 'text-zinc-500'}">${st}</span></li>`;
+  }).join('');
+  const note = s.status === 'Delayed' ? '<p class="mt-4 rounded-lg border border-amber-500/30 bg-amber-950/30 p-3 text-sm text-amber-200">This shipment is delayed. The delivery date may change. We will email an update.</p>'
+    : s.status === 'Cancelled' ? '<p class="mt-4 rounded-lg border border-white/10 bg-white/5 p-3 text-sm text-zinc-300">This shipment was cancelled.</p>' : '';
+  const row = (icon, label, value) => `<div class="flex gap-3"><i data-lucide="${icon}" class="mt-0.5 h-5 w-5 shrink-0 text-apex-400" aria-hidden="true"></i><div><dt class="text-sm text-zinc-400">${label}</dt><dd class="font-medium text-white">${value}</dd></div></div>`;
+  trackResult.innerHTML = `<article class="panel p-5 sm:p-6">
+    <div class="flex flex-wrap items-center justify-between gap-3"><div><p class="text-sm text-zinc-400">Tracking ID</p><h3 class="break-all text-3xl font-bold text-white">${esc(s.trackingId)}</h3></div>${badge(s.status)}</div>
+    ${idx >= 0 ? `<ol class="mt-6 flex gap-1" aria-label="Shipment progress">${steps}</ol>` : ''}${note}
+    <dl class="mt-6 grid gap-5 border-t border-white/10 pt-6 sm:grid-cols-2">
+      ${row('user', 'Customer', esc(s.customerName))}
+      ${row('map-pin', 'Current location', esc(s.currentLocation))}
+      ${row('circle-dot', 'Origin', esc(hubName(s.origin)))}
+      ${row('flag', 'Destination', esc(hubName(s.destination)))}
+      ${row((MODES[s.mode] || MODES.road).icon, 'Transport mode', esc((MODES[s.mode] || {}).label || s.mode))}
+      ${row('weight', 'Cargo weight', num(s.weightKg) + ' kg')}
+      ${row('calendar-check', 'Estimated delivery', fmtDate(s.estimatedDelivery))}
+      ${row('calendar-plus', 'Booking created', fmtDate(s.createdAt))}
+    </dl></article>`;
+  icons();
+}
+async function runTrack(raw) {
+  const id = raw.trim().toUpperCase();
+  $('#trackId').value = id;
+  if (!id) { fieldError('trackId', 'Enter your tracking ID.'); trackMessage('empty', 'No shipment loaded', 'Enter a tracking ID above to see where your cargo is.'); return; }
+  if (!TRACKING_RE.test(id)) { fieldError('trackId', 'That does not look like a tracking ID. It starts with APX- followed by a date and 8 characters.'); return; }
+  fieldError('trackId', '');
+  const btn = $('#trackBtn'); setBusy(btn, true, 'Searching…'); trackSkeleton();
+  try { trackSuccess(await api('GET', '/track/' + encodeURIComponent(id))); }
+  catch (e) {
+    if (e.status === 404) trackMessage('empty', 'No shipment found', `We could not find ${id}. Check the ID in your booking confirmation and try again.`);
+    else trackMessage('error', 'Could not load tracking', e.message);
+  } finally { setBusy(btn, false); }
+}
+$('#trackForm').addEventListener('submit', e => { e.preventDefault(); runTrack($('#trackId').value); });
+$('#heroTrack').addEventListener('submit', e => {
+  e.preventDefault();
+  const v = $('#heroTrackId').value; $('#trackId').value = v;
+  $('#tracking').scrollIntoView(); runTrack(v);
+});
+trackMessage('empty', 'No shipment loaded', 'Enter a tracking ID above to see where your cargo is.');
+if (demo) {
+  $('#trackChips').innerHTML = mock.demoIds().map(id => `<button type="button" class="rounded border border-white/15 px-2 py-0.5 text-zinc-200 hover:border-apex hover:text-white" data-id="${id}">${id}</button>`).join('');
+  $('#trackChips').addEventListener('click', e => { const b = e.target.closest('[data-id]'); if (b) { $('#trackId').value = b.dataset.id; runTrack(b.dataset.id); } });
+}
+
+/* ---------------------------------------------------------------- UI: estimator */
+const selectedMode = () => ($('input[name="estMode"]:checked') || {}).value;
+function renderEstimate(q, input) {
+  const box = $('#estResult');
+  if (!q.ok) {
+    const f = { origin: 'estOrigin', destination: 'estDest', weight: 'estWeight' }[q.field];
+    ['estOrigin', 'estDest', 'estWeight'].forEach(id => fieldError(id, id === f ? q.error : ''));
+    box.innerHTML = `<div class="flex min-h-[16rem] flex-col items-center justify-center text-center" role="alert"><i data-lucide="circle-alert" class="h-9 w-9 text-red-300" aria-hidden="true"></i><p class="mt-3 max-w-sm text-zinc-200">${esc(q.error)}</p></div>`;
+    icons(); return;
+  }
+  ['estOrigin', 'estDest', 'estWeight'].forEach(id => fieldError(id, ''));
+  const line = (l, v, strong) => `<div class="flex items-center justify-between py-2 ${strong ? '' : 'border-b border-white/5'}"><dt class="${strong ? 'text-lg font-semibold text-white' : 'text-zinc-300'}">${l}</dt><dd class="${strong ? 'font-display text-4xl font-bold text-white' : 'font-medium text-white'}">${v}</dd></div>`;
+  box.innerHTML = `<div><p class="text-sm text-zinc-400">${esc(hubName(input.origin))} to ${esc(hubName(input.destination))} by ${MODES[input.mode].label.toLowerCase()}, ${num(input.weightKg)} kg</p>
+    <dl class="mt-3">${line('Freight charge', inr(q.freight))}${line('Fuel surcharge (' + Math.round(CONFIG.PRICING.modes[input.mode].fuelPct * 100) + '%)', inr(q.fuel))}${line('GST (' + Math.round(CONFIG.PRICING.gstPct * 100) + '%)', inr(q.gst))}<div class="mt-2 border-t border-apex/40 pt-2">${line('Estimated total', inr(q.total), true)}</div></dl>
+    <div class="mt-3 grid grid-cols-2 gap-3 text-sm"><div class="rounded-lg bg-white/5 p-3"><p class="text-zinc-400">Distance</p><p class="font-medium text-white">${num(q.km)} km</p></div><div class="rounded-lg bg-white/5 p-3"><p class="text-zinc-400">Transit time</p><p class="font-medium text-white">about ${q.transitDays} days</p></div></div>
+    <button id="estBook" class="btn btn-primary mt-5 w-full"><i data-lucide="package-check" class="h-4 w-4" aria-hidden="true"></i>Book this shipment</button>
+    <p class="mt-3 text-xs text-zinc-500">An estimate, not a final invoice. The booking confirmation shows the price we have saved.</p></div>`;
+  icons();
+  $('#estBook').addEventListener('click', () => {
+    $('#bkOrigin').value = input.origin; $('#bkDest').value = input.destination; $('#bkMode').value = input.mode; $('#bkWeight').value = input.weightKg;
+    updateBookingCost(); $('#booking').scrollIntoView(); setTimeout(() => $('#bkName').focus({ preventScroll: true }), 400);
+  });
+}
+$('#estForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const input = { origin: $('#estOrigin').value, destination: $('#estDest').value, mode: selectedMode(), weightKg: parseFloat($('#estWeight').value) };
+  const btn = $('#estBtn'); setBusy(btn, true, 'Calculating…');
+  await new Promise(r => setTimeout(r, 350));
+  renderEstimate(estimate(input), input);
+  setBusy(btn, false);
+});
+
+/* ---------------------------------------------------------------- UI: booking */
+let bookingQuote = null;
+function bookingInput() { return { origin: $('#bkOrigin').value, destination: $('#bkDest').value, mode: $('#bkMode').value, weightKg: parseFloat($('#bkWeight').value) }; }
+function updateBookingCost() {
+  const i = bookingInput(), cost = $('#bkCost');
+  if (!i.origin || !i.destination || !i.mode || !(i.weightKg > 0)) { cost.value = ''; bookingQuote = null; fieldError('bkCost', ''); return; }
+  const q = estimate(i);
+  if (q.ok) { cost.value = inr(q.total) + `  (about ${q.transitDays} days)`; bookingQuote = q; fieldError('bkCost', ''); }
+  else { cost.value = ''; bookingQuote = null; fieldError('bkCost', q.error); }
+}
+['#bkOrigin', '#bkDest', '#bkMode', '#bkWeight'].forEach(s => { $(s).addEventListener('input', updateBookingCost); $(s).addEventListener('change', updateBookingCost); });
+
+function validateBooking() {
+  const name = $('#bkName').value.trim(), email = $('#bkEmail').value.trim(), i = bookingInput();
+  const r = [
+    fieldError('bkName', name.length >= 2 && name.length <= 80 ? '' : 'Enter the customer name (2 to 80 characters).'),
+    fieldError('bkEmail', EMAIL_RE.test(email) ? '' : 'Enter a valid email address, such as name@company.com.'),
+    fieldError('bkOrigin', i.origin ? '' : 'Select an origin.'),
+    fieldError('bkDest', !i.destination ? 'Select a destination.' : i.destination === i.origin ? 'Destination must differ from the origin.' : ''),
+    fieldError('bkMode', i.mode ? '' : 'Select a transport mode.'),
+    fieldError('bkWeight', i.weightKg > 0 ? '' : 'Enter the cargo weight in kg.')
+  ];
+  if (r.every(Boolean)) { const q = estimate(i); if (!q.ok) { const map = { origin: 'bkOrigin', destination: 'bkDest', mode: 'bkMode', weight: 'bkWeight' }; fieldError(map[q.field] || 'bkMode', q.error); return false; } }
+  return r.every(Boolean);
+}
+$('#bookForm').addEventListener('submit', async e => {
+  e.preventDefault(); showBox($('#bkFormError'), '');
+  if (!validateBooking()) { const bad = $('#bookForm [aria-invalid="true"]'); if (bad) bad.focus(); return; }
+  const i = bookingInput(), btn = $('#bkBtn'); setBusy(btn, true, 'Saving booking…');
+  try {
+    const res = await api('POST', '/bookings', { customerName: $('#bkName').value.trim(), email: $('#bkEmail').value.trim(), ...i, estimatedCost: bookingQuote.total });
+    if (!res || !res.trackingId) throw new ApiError(502, 'The server did not confirm the booking. Nothing was saved. Please try again.');
+    showConfirmation(res, i); e.target.reset(); bookingQuote = null; $('#bkCost').value = '';
+    toast('Booking confirmed: ' + res.trackingId);
+  } catch (err) { showBox($('#bkFormError'), 'Booking not saved. ' + err.message); }
+  finally { setBusy(btn, false); }
+});
+function showConfirmation(res, i) {
+  const box = $('#bkConfirm'); $('#bkInfo').classList.add('hidden'); box.classList.remove('hidden');
+  box.innerHTML = `<div class="flex items-center gap-3 text-green-300"><i data-lucide="circle-check-big" class="h-7 w-7" aria-hidden="true"></i><h3 class="text-3xl font-bold text-white">Booking confirmed</h3></div>
+    <p class="mt-4 text-sm text-zinc-400">Your tracking reference</p>
+    <p class="break-all font-display text-3xl font-bold text-white" id="newId">${esc(res.trackingId)}</p>
+    <dl class="mt-4 space-y-2 text-sm"><div class="flex justify-between gap-3"><dt class="text-zinc-400">Route</dt><dd class="text-right text-white">${esc(hubName(i.origin))} to ${esc(hubName(i.destination))}</dd></div><div class="flex justify-between gap-3"><dt class="text-zinc-400">Total (incl. GST)</dt><dd class="text-white">${inr(res.estimatedCost)}</dd></div><div class="flex justify-between gap-3"><dt class="text-zinc-400">Estimated delivery</dt><dd class="text-white">${fmtDate(res.estimatedDelivery)}</dd></div></dl>
+    <div class="mt-5 flex flex-col gap-2 sm:flex-row"><button id="copyId" class="btn btn-ghost flex-1"><i data-lucide="copy" class="h-4 w-4" aria-hidden="true"></i>Copy ID</button><button id="trackNew" class="btn btn-primary flex-1"><i data-lucide="search" class="h-4 w-4" aria-hidden="true"></i>Track shipment</button></div>
+    <button id="newBooking" class="mt-3 text-sm text-zinc-400 underline underline-offset-4 hover:text-white">Make another booking</button>`;
+  icons();
+  $('#copyId').addEventListener('click', async () => { try { await navigator.clipboard.writeText(res.trackingId); toast('Tracking ID copied'); } catch (e) { toast('Copy failed. Select the ID and copy it manually.', 'err'); } });
+  $('#trackNew').addEventListener('click', () => { $('#trackId').value = res.trackingId; $('#tracking').scrollIntoView(); runTrack(res.trackingId); });
+  $('#newBooking').addEventListener('click', () => { box.classList.add('hidden'); $('#bkInfo').classList.remove('hidden'); $('#bkName').focus(); });
+  box.setAttribute('tabindex', '-1'); box.focus({ preventScroll: true });
+}
+
+/* ---------------------------------------------------------------- UI: admin */
+const A = { shipments: [], fleet: [], summary: null, shown: 10, charts: {} };
+const loginWrap = $('#loginWrap'), dashWrap = $('#dashWrap');
+
+$('#togglePass').addEventListener('click', e => {
+  const p = $('#adPass'), show = p.type === 'password'; p.type = show ? 'text' : 'password';
+  e.currentTarget.setAttribute('aria-pressed', show); e.currentTarget.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  e.currentTarget.innerHTML = `<i data-lucide="${show ? 'eye-off' : 'eye'}" class="h-4 w-4" aria-hidden="true"></i>`; icons();
+});
+$('#loginForm').addEventListener('submit', async e => {
+  e.preventDefault(); showBox($('#loginError'), '');
+  const email = $('#adEmail').value.trim(), pass = $('#adPass').value;
+  const ok = [fieldError('adEmail', EMAIL_RE.test(email) ? '' : 'Enter your work email.'), fieldError('adPass', pass ? '' : 'Enter your password.')];
+  if (!ok.every(Boolean)) return;
+  const btn = $('#loginBtn'); setBusy(btn, true, 'Signing in…');
+  try {
+    const res = await api('POST', '/admin/login', { email, password: pass });
+    saveToken(res.idToken); $('#adPass').value = ''; enterDashboard();
+  } catch (err) { showBox($('#loginError'), err.message); }
+  finally { setBusy(btn, false); }
+});
+$('#logoutBtn').addEventListener('click', () => leaveDashboard('You have been signed out.'));
+function leaveDashboard(msg) {
+  saveToken(null); Object.values(A.charts).forEach(c => c.destroy()); A.charts = {};
+  dashWrap.classList.add('hidden'); loginWrap.classList.remove('hidden'); $('#logoutBtn').classList.add('hidden');
+  $('#adminSub').textContent = 'For APEX operations staff. Sign in to manage shipments.';
+  if (msg) toast(msg); $('#adEmail').focus({ preventScroll: true });
+}
+async function enterDashboard() {
+  loginWrap.classList.add('hidden'); dashWrap.classList.remove('hidden'); $('#logoutBtn').classList.remove('hidden');
+  $('#adminSub').textContent = 'Signed in. Data below comes from the live shipment records.';
+  $('#dashLoading').classList.remove('hidden'); $('#dashContent').classList.add('hidden'); showBox($('#dashError'), '');
+  try { await loadDashboard(); }
+  catch (e) {
+    if (e.status === 401 || e.status === 403) { leaveDashboard(); showBox($('#loginError'), e.status === 403 ? 'This account is not an administrator.' : 'Your session has expired. Sign in again.'); return; }
+    $('#dashLoading').classList.add('hidden');
+    $('#dashError').innerHTML = `${esc(e.message)} <button id="dashRetry" class="ml-2 underline underline-offset-4">Retry</button>`; $('#dashError').classList.remove('hidden');
+    $('#dashRetry').addEventListener('click', enterDashboard);
+  }
+}
+async function loadDashboard() {
+  const d = await api('GET', '/admin/dashboard', null, true);
+  A.shipments = d.shipments || []; A.fleet = d.fleet || []; A.summary = d.summary;
+  $('#dashLoading').classList.add('hidden'); $('#dashContent').classList.remove('hidden');
+  renderKpis(); renderCharts(); renderFleet(); renderTable();
+}
+function renderKpis() {
+  const s = A.summary, active = A.fleet.filter(v => v.status === 'Active').length;
+  const k = (icon, label, value, sub) => `<div class="panel p-5"><div class="flex items-center justify-between text-zinc-400"><span class="text-sm">${label}</span><i data-lucide="${icon}" class="h-5 w-5 text-apex-400" aria-hidden="true"></i></div><p class="mt-2 font-display text-4xl font-bold text-white">${value}</p><p class="text-sm text-zinc-500">${sub}</p></div>`;
+  $('#kpis').innerHTML = k('indian-rupee', 'Total revenue', inr(s.totalRevenue), 'All bookings except cancelled') +
+    k('calendar', 'Revenue this month', inr(s.monthRevenue), 'Bookings created this month') +
+    k('clock', 'Pending shipments', s.pendingCount, `${s.activeCount} more in progress`) +
+    k('truck', 'Active fleet', `${active} / ${A.fleet.length}`, 'Vehicles on the road, sea or air');
+  icons();
+}
+function renderCharts() {
+  Object.values(A.charts).forEach(c => c.destroy());
+  if (!window.Chart) { return; }
+  Chart.defaults.color = '#a1a1aa'; Chart.defaults.borderColor = 'rgba(255,255,255,.08)'; Chart.defaults.font.family = '"IBM Plex Sans", sans-serif';
+  const s = A.summary;
+  A.charts.rev = new Chart($('#revChart'), { type: 'bar',
+    data: { labels: s.monthlyRevenue.map(m => m.month), datasets: [{ label: 'Revenue', data: s.monthlyRevenue.map(m => m.revenue), backgroundColor: '#e11d2e', hoverBackgroundColor: '#ff4757', borderRadius: 4 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => inr(c.parsed.y) } } },
+      scales: { y: { beginAtZero: true, ticks: { callback: v => v >= 100000 ? '₹' + (v / 100000).toFixed(1) + 'L' : '₹' + v / 1000 + 'k' } }, x: { grid: { display: false } } } } });
+  const m = s.modeBreakdown;
+  A.charts.mode = new Chart($('#modeChart'), { type: 'doughnut',
+    data: { labels: ['Road', 'Ocean', 'Air'], datasets: [{ data: [m.road, m.ocean, m.air], backgroundColor: ['#e11d2e', '#71717a', '#f4f4f5'], borderColor: '#111113', borderWidth: 3 }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '62%', plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true } } } } });
+  $('#revChart').setAttribute('aria-label', 'Bar chart of monthly revenue: ' + s.monthlyRevenue.map(x => `${x.month} ${inr(x.revenue)}`).join(', '));
+  $('#modeChart').setAttribute('aria-label', `Doughnut chart of shipments by mode: road ${m.road}, ocean ${m.ocean}, air ${m.air}`);
+}
+function renderFleet() {
+  const tone = { Active: 'bg-green-400', Idle: 'bg-zinc-500', Maintenance: 'bg-amber-400' };
+  const ic = { Truck: 'truck', Trailer: 'container', Vessel: 'ship', Aircraft: 'plane' };
+  $('#fleetList').innerHTML = A.fleet.length ? A.fleet.map(v => `<div class="rounded-lg border border-white/5 bg-white/[.03] p-3"><div class="flex items-center gap-2"><i data-lucide="${ic[v.type] || 'truck'}" class="h-4 w-4 text-apex-400" aria-hidden="true"></i><span class="text-sm font-medium text-white">${esc(v.vehicleId)}</span></div><p class="mt-1 truncate text-sm text-zinc-300">${esc(v.name)}</p><p class="mt-1 flex items-center gap-1.5 text-xs text-zinc-400"><span class="h-2 w-2 rounded-full ${tone[v.status] || 'bg-zinc-500'}" aria-hidden="true"></span>${esc(v.status)} · ${esc(v.location)}</p></div>`).join('') : '<p class="text-sm text-zinc-400">No fleet records yet. Import data/Fleet.csv into the Fleet table.</p>';
+  icons();
+}
+$('#tblStatus').innerHTML += STATUSES.map(s => `<option>${s}</option>`).join('');
+$('#edStatus').innerHTML = STATUSES.map(s => `<option>${s}</option>`).join('');
+function filtered() {
+  const q = $('#tblSearch').value.trim().toLowerCase(), st = $('#tblStatus').value;
+  return A.shipments.filter(s => (!st || s.status === st) && (!q || [s.trackingId, s.customerName, hubName(s.origin), hubName(s.destination), s.currentLocation].join(' ').toLowerCase().includes(q)));
+}
+function renderTable() {
+  const rows = filtered(), shown = rows.slice(0, A.shown);
+  $('#tblBody').innerHTML = shown.length ? shown.map(s => `<tr class="hover:bg-white/[.03]">
+    <td class="px-3 py-2.5 font-medium text-white">${esc(s.trackingId)}</td><td class="px-3 py-2.5">${esc(s.customerName)}</td>
+    <td class="px-3 py-2.5">${esc(hubName(s.origin))} to ${esc(hubName(s.destination))}</td><td class="px-3 py-2.5">${esc((MODES[s.mode] || {}).label || s.mode)}</td>
+    <td class="px-3 py-2.5 text-right">${inr(s.estimatedCost)}</td><td class="px-3 py-2.5">${badge(s.status)}</td><td class="px-3 py-2.5 text-zinc-300">${esc(s.currentLocation)}</td>
+    <td class="px-3 py-2.5 text-right"><button class="btn btn-ghost !min-h-[36px] !px-3 !py-1 text-sm" data-edit="${esc(s.trackingId)}" aria-label="Update ${esc(s.trackingId)}"><i data-lucide="pencil" class="h-4 w-4" aria-hidden="true"></i>Update</button></td></tr>`).join('')
+    : '<tr><td colspan="8" class="px-3 py-10 text-center text-zinc-400">No shipments match these filters.</td></tr>';
+  $('#tblCount').textContent = `Showing ${shown.length} of ${rows.length} shipments`;
+  $('#tblMore').classList.toggle('hidden', rows.length <= shown.length);
+  icons();
+}
+['#tblSearch', '#tblStatus'].forEach(s => $(s).addEventListener('input', () => { A.shown = 10; renderTable(); }));
+$('#tblMore').addEventListener('click', () => { A.shown += 15; renderTable(); });
+
+const dlg = $('#editDialog');
+let editingId = null;
+$('#tblBody').addEventListener('click', e => {
+  const b = e.target.closest('[data-edit]'); if (!b) return;
+  const s = A.shipments.find(x => x.trackingId === b.dataset.edit); if (!s) return;
+  editingId = s.trackingId; $('#editId').textContent = `${s.trackingId} · ${s.customerName}`;
+  $('#edStatus').value = s.status; $('#edLoc').value = s.currentLocation; fieldError('edLoc', ''); showBox($('#edError'), '');
+  dlg.showModal(); $('#edStatus').focus();
+});
+$('#edCancel').addEventListener('click', () => dlg.close());
+dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+$('#editForm').addEventListener('submit', async e => {
+  e.preventDefault(); showBox($('#edError'), '');
+  const loc = $('#edLoc').value.trim();
+  if (!fieldError('edLoc', loc && loc.length <= 120 ? '' : 'Enter the current location (up to 120 characters).')) return;
+  const btn = $('#edSave'); setBusy(btn, true, 'Saving…');
+  try {
+    await api('PATCH', '/admin/shipments/' + encodeURIComponent(editingId), { status: $('#edStatus').value, currentLocation: loc }, true);
+    dlg.close(); toast('Shipment ' + editingId + ' updated'); await loadDashboard();
+  } catch (err) {
+    if (err.status === 401 || err.status === 403) { dlg.close(); leaveDashboard(); showBox($('#loginError'), 'Your session has expired. Sign in again.'); }
+    else showBox($('#edError'), 'Not saved. ' + err.message);
+  } finally { setBusy(btn, false); }
+});
+
+/* ---------------------------------------------------------------- start */
+icons();
+if (adminToken) enterDashboard();
+const hideLoader = () => { const l = $('#pageLoader'); l.style.opacity = '0'; setTimeout(() => l.remove(), 500); };
+let loaded = false;
+const finish = () => { if (!loaded) { loaded = true; setTimeout(hideLoader, 350); } };
+if (document.readyState === 'complete') finish(); else window.addEventListener('load', finish);
+setTimeout(finish, 4000);
+})();
+</script>
+</body>
+</html>

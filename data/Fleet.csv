@@ -1,0 +1,11 @@
+vehicleId,type,name,status,location
+TRK-101,Truck,Tata Prima 5530,Active,Nagpur
+TRK-102,Truck,Ashok Leyland 4825,Active,Bhubaneswar
+TRK-103,Truck,BharatBenz 3523,Maintenance,Kolkata depot
+TRK-104,Truck,Eicher Pro 6048,Idle,Delhi depot
+TRK-105,Truck,Tata Signa 4825,Active,Hyderabad
+TRL-201,Trailer,40 ft container trailer,Active,Paradeep Port
+VSL-301,Vessel,MV Apex Utkal,Active,Arabian Sea
+VSL-302,Vessel,MV Apex Konark,Active,Singapore
+AIR-401,Aircraft,Boeing 737-800BCF,Active,Mumbai (BOM)
+AIR-402,Aircraft,ATR 72-500F,Idle,Bengaluru (BLR)
